@@ -3,7 +3,7 @@ services:
   outyet:
     build:
       context: .
-    image: spkane/outyet:latest
+    image: outyet:latest
     ports:
       - "10088:18088"
     networks:
