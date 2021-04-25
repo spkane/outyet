@@ -1,4 +1,4 @@
-FROM golang:1.9.4
+FROM golang:1.9.4 as builder
 # Build Image
 
 COPY . /go/src/outyet
@@ -12,13 +12,14 @@ RUN go get -v -d && \
     go test -v && \
     go build -ldflags "-s" -a -installsuffix cgo -o outyet .
 
-FROM alpine:latest
+FROM alpine:latest as deploy
 # Deploy Image
 
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /
-COPY --from=0 /go/src/outyet/outyet .
+COPY --from=builder /go/src/outyet/outyet .
+# (or) COPY --from=0 /go/src/outyet/outyet .
 
 EXPOSE 8080
 
