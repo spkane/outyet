@@ -1,0 +1,6 @@
+.git
+.devcontainer
+docker-compose.yaml
+Dockerfile*
+*.md
+outyet
