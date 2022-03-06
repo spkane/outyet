@@ -5,7 +5,7 @@ services:
       context: .
     image: outyet:latest
     ports:
-      - "10088:18088"
+      - "8080:8080"
     networks:
       - my-net
 networks:
