@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: outyet
+  labels:
+    app: outyet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: outyet
+  template:
+    metadata:
+      labels:
+        app: outyet
+    spec:
+      containers:
+      - name: outyet
+        image: docker.io/spkane/outyet:1.9.4
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: outyet
+  labels:
+    name: outyet
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+  selector:
+    app: outyet
+---
