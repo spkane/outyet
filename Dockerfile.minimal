@@ -1,4 +1,4 @@
-FROM golang:1.9.4 as builder
+FROM golang:1.22.0 as builder
 # Build Image
 
 COPY . /go/src/outyet
@@ -23,5 +23,4 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifi
 
 EXPOSE 8080
 
-CMD ["/outyet", "-version", "1.9.4", "-poll", "600s", "-http", ":8080"]
-
+CMD ["/outyet", "-version", "1.22.0", "-poll", "600s", "-http", ":8080"]

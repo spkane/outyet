@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: outyet
-        image: docker.io/spkane/outyet:1.9.4
+        image: docker.io/spkane/outyet:latest
         ports:
         - containerPort: 8080
         resources:
