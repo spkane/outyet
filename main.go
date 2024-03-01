@@ -19,6 +19,7 @@ limitations under the License.
 package main
 
 import (
+	"errors"
 	"expvar"
 	"flag"
 	"fmt"
@@ -84,21 +85,53 @@ type Server struct {
 
 // NewServer returns an initialized outyet server.
 func NewServer(version, url string, hostname string, period time.Duration, logic string) *Server {
+	s := &Server{version: version, url: url, hostname: hostname, period: period, logic: logic}
+	go s.poll()
+	return s
+}
+
+// getEnvVar return the env var value.
+func getEnvVar() string {
 	config_message := "Note: envvar is not set in the environment."
+	if _, err := os.Stat("/etc/config/variable.env"); errors.Is(err, os.ErrNotExist) {
+		// Do nothing
+	} else {
+		cfile, err := os.ReadFile("/etc/config/variable.env")
+		if err != nil {
+			fmt.Print(err)
+		}
+		config_message = fmt.Sprintf("envar (via file) is set to: %s", cfile)
+	}
+	// Prefer variable over file.
 	envvar, exists := os.LookupEnv("envvar")
 	if exists != false {
 		config_message = fmt.Sprintf("envar is set to: %s", envvar)
 	}
+	return config_message
+}
+
+// getSecret return the env var value.
+func getSecret() string {
 	secret_message := "Note: secret is not set in the environment."
+	if _, err := os.Stat("/etc/config/secret.env"); errors.Is(err, os.ErrNotExist) {
+		// Do nothing
+	} else {
+		sfile, err := os.ReadFile("/etc/config/secret.env")
+		if err != nil {
+			fmt.Print(err)
+		}
+		length := len(sfile)
+		redacted_secret := strings.Repeat("*", length)
+		secret_message = fmt.Sprintf("secret (via file) is set to: %s", redacted_secret)
+	}
+	// Prefer variable over file.
 	secret, s_exists := os.LookupEnv("secret")
 	if s_exists != false {
 		length := len(secret)
 		redacted_secret := strings.Repeat("*", length)
 		secret_message = fmt.Sprintf("secret is set to: %s", redacted_secret)
 	}
-	s := &Server{version: version, url: url, hostname: hostname, period: period, config_message: config_message, secret_message: secret_message, logic: logic}
-	go s.poll()
-	return s
+	return secret_message
 }
 
 // poll polls the change URL for the specified period until the tag exists.
@@ -137,6 +170,10 @@ func isTagged(url string) bool {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	hitCount.Add(1)
 	s.mu.RLock()
+
+	config_message := getEnvVar()
+	secret_message := getSecret()
+
 	data := struct {
 		ConfigMessage string
 		SecretMessage string
@@ -146,8 +183,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Logic         string
 		Yes           bool
 	}{
-		s.config_message,
-		s.secret_message,
+		config_message,
+		secret_message,
 		s.url,
 		s.version,
 		s.hostname,
