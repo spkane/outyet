@@ -1,7 +1,7 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/go/.devcontainer/base.Dockerfile
 
 # [Choice] Go version: 1, 1.16, 1.17
-ARG VARIANT="1.17"
+ARG VARIANT="1.22"
 
 # FIXME: This should likely be changed to a stable release at some point,
 # but this image supports amd64 and arm64
